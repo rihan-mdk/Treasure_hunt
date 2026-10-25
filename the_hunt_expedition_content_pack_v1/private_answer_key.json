@@ -1,0 +1,431 @@
+{
+  "pack_name": "The Hunt Expedition — Content Pack v1",
+  "classification": "PRIVATE ORGANIZER DATA — DO NOT SHIP TO CLIENT",
+  "private_answer_keys": [
+    {
+      "question_id": 1,
+      "canonical_answer": "book",
+      "accepted_variants": [
+        "book",
+        "a book"
+      ],
+      "classification": "PRIVATE_ORGANIZER_ONLY"
+    },
+    {
+      "question_id": 2,
+      "canonical_answer": "footprints",
+      "accepted_variants": [
+        "footprint",
+        "footprints",
+        "tracks"
+      ],
+      "classification": "PRIVATE_ORGANIZER_ONLY"
+    },
+    {
+      "question_id": 3,
+      "canonical_answer": "7.5",
+      "accepted_variants": [
+        "7.5",
+        "7.5 degrees",
+        "7.5°"
+      ],
+      "classification": "PRIVATE_ORGANIZER_ONLY"
+    },
+    {
+      "question_id": 4,
+      "canonical_answer": "cube",
+      "accepted_variants": [
+        "cube"
+      ],
+      "classification": "PRIVATE_ORGANIZER_ONLY"
+    },
+    {
+      "question_id": 5,
+      "canonical_answer": "u",
+      "accepted_variants": [
+        "u"
+      ],
+      "classification": "PRIVATE_ORGANIZER_ONLY"
+    },
+    {
+      "question_id": 6,
+      "canonical_answer": "cat",
+      "accepted_variants": [
+        "cat"
+      ],
+      "classification": "PRIVATE_ORGANIZER_ONLY"
+    },
+    {
+      "question_id": 7,
+      "canonical_answer": "3",
+      "accepted_variants": [
+        "3",
+        "three"
+      ],
+      "classification": "PRIVATE_ORGANIZER_ONLY"
+    },
+    {
+      "question_id": 8,
+      "canonical_answer": "8",
+      "accepted_variants": [
+        "8",
+        "8 hours",
+        "eight hours"
+      ],
+      "classification": "PRIVATE_ORGANIZER_ONLY"
+    },
+    {
+      "question_id": 9,
+      "canonical_answer": "a",
+      "accepted_variants": [
+        "a"
+      ],
+      "classification": "PRIVATE_ORGANIZER_ONLY"
+    },
+    {
+      "question_id": 10,
+      "canonical_answer": "n",
+      "accepted_variants": [
+        "n"
+      ],
+      "classification": "PRIVATE_ORGANIZER_ONLY"
+    },
+    {
+      "question_id": 11,
+      "canonical_answer": "cat",
+      "accepted_variants": [
+        "cat"
+      ],
+      "classification": "PRIVATE_ORGANIZER_ONLY"
+    },
+    {
+      "question_id": 12,
+      "canonical_answer": "10",
+      "accepted_variants": [
+        "10",
+        "ten"
+      ],
+      "classification": "PRIVATE_ORGANIZER_ONLY"
+    },
+    {
+      "question_id": 13,
+      "canonical_answer": "42",
+      "accepted_variants": [
+        "42"
+      ],
+      "classification": "PRIVATE_ORGANIZER_ONLY"
+    },
+    {
+      "question_id": 14,
+      "canonical_answer": "silent",
+      "accepted_variants": [
+        "silent"
+      ],
+      "classification": "PRIVATE_ORGANIZER_ONLY"
+    },
+    {
+      "question_id": 15,
+      "canonical_answer": "heat",
+      "accepted_variants": [
+        "heat",
+        "temperature",
+        "warmth"
+      ],
+      "classification": "PRIVATE_ORGANIZER_ONLY"
+    },
+    {
+      "question_id": 16,
+      "canonical_answer": "encrypted connection",
+      "accepted_variants": [
+        "encrypted",
+        "secure connection",
+        "encrypted connection",
+        "tls"
+      ],
+      "classification": "PRIVATE_ORGANIZER_ONLY"
+    },
+    {
+      "question_id": 17,
+      "canonical_answer": "27",
+      "accepted_variants": [
+        "27",
+        "twenty seven",
+        "twenty-seven"
+      ],
+      "classification": "PRIVATE_ORGANIZER_ONLY"
+    },
+    {
+      "question_id": 18,
+      "canonical_answer": "jo",
+      "accepted_variants": [
+        "jo"
+      ],
+      "classification": "PRIVATE_ORGANIZER_ONLY"
+    },
+    {
+      "question_id": 19,
+      "canonical_answer": "two dimensional barcode",
+      "accepted_variants": [
+        "two dimensional barcode",
+        "2d barcode",
+        "2d code",
+        "matrix barcode"
+      ],
+      "classification": "PRIVATE_ORGANIZER_ONLY"
+    },
+    {
+      "question_id": 20,
+      "canonical_answer": "level",
+      "accepted_variants": [
+        "level"
+      ],
+      "classification": "PRIVATE_ORGANIZER_ONLY"
+    },
+    {
+      "question_id": 21,
+      "canonical_answer": "a",
+      "accepted_variants": [
+        "a",
+        "A",
+        "A is telling the truth"
+      ],
+      "classification": "PRIVATE_ORGANIZER_ONLY"
+    },
+    {
+      "question_id": 22,
+      "canonical_answer": "(6,1)",
+      "accepted_variants": [
+        "(6,1)",
+        "6,1",
+        "6 1",
+        "6, 1"
+      ],
+      "classification": "PRIVATE_ORGANIZER_ONLY"
+    },
+    {
+      "question_id": 23,
+      "canonical_answer": "47",
+      "accepted_variants": [
+        "47",
+        "forty seven",
+        "forty-seven"
+      ],
+      "classification": "PRIVATE_ORGANIZER_ONLY"
+    },
+    {
+      "question_id": 24,
+      "canonical_answer": "mixed",
+      "accepted_variants": [
+        "mixed",
+        "box labelled mixed",
+        "the mixed box"
+      ],
+      "classification": "PRIVATE_ORGANIZER_ONLY"
+    },
+    {
+      "question_id": 25,
+      "canonical_answer": "3,5,1,8",
+      "accepted_variants": [
+        "3,5,1,8",
+        "[3, 5, 1, 8]"
+      ],
+      "classification": "PRIVATE_ORGANIZER_ONLY"
+    },
+    {
+      "question_id": 26,
+      "canonical_answer": "14",
+      "accepted_variants": [
+        "14",
+        "14 ms",
+        "14 milliseconds"
+      ],
+      "classification": "PRIVATE_ORGANIZER_ONLY"
+    },
+    {
+      "question_id": 27,
+      "canonical_answer": "1/4",
+      "accepted_variants": [
+        "1/4",
+        "0.25",
+        "25%",
+        "one quarter"
+      ],
+      "classification": "PRIVATE_ORGANIZER_ONLY"
+    },
+    {
+      "question_id": 28,
+      "canonical_answer": "3",
+      "accepted_variants": [
+        "3",
+        "three",
+        "3 handshakes"
+      ],
+      "classification": "PRIVATE_ORGANIZER_ONLY"
+    },
+    {
+      "question_id": 29,
+      "canonical_answer": "digest",
+      "accepted_variants": [
+        "digest",
+        "hash",
+        "hash digest",
+        "message digest"
+      ],
+      "classification": "PRIVATE_ORGANIZER_ONLY"
+    },
+    {
+      "question_id": 30,
+      "canonical_answer": "13",
+      "accepted_variants": [
+        "13",
+        "thirteen"
+      ],
+      "classification": "PRIVATE_ORGANIZER_ONLY"
+    },
+    {
+      "question_id": 31,
+      "canonical_answer": "treasure",
+      "accepted_variants": [
+        "treasure"
+      ],
+      "classification": "PRIVATE_ORGANIZER_ONLY"
+    },
+    {
+      "question_id": 32,
+      "canonical_answer": "90",
+      "accepted_variants": [
+        "90",
+        "₹90",
+        "90 rupees",
+        "ninety"
+      ],
+      "classification": "PRIVATE_ORGANIZER_ONLY"
+    },
+    {
+      "question_id": 33,
+      "canonical_answer": "26",
+      "accepted_variants": [
+        "26",
+        "26 m",
+        "26 metres",
+        "26 meters"
+      ],
+      "classification": "PRIVATE_ORGANIZER_ONLY"
+    },
+    {
+      "question_id": 34,
+      "canonical_answer": "ld",
+      "accepted_variants": [
+        "ld",
+        "LD",
+        "L-D"
+      ],
+      "classification": "PRIVATE_ORGANIZER_ONLY"
+    },
+    {
+      "question_id": 35,
+      "canonical_answer": "12",
+      "accepted_variants": [
+        "12",
+        "12 minutes",
+        "12 mins"
+      ],
+      "classification": "PRIVATE_ORGANIZER_ONLY"
+    },
+    {
+      "question_id": 36,
+      "canonical_answer": "cat",
+      "accepted_variants": [
+        "cat"
+      ],
+      "classification": "PRIVATE_ORGANIZER_ONLY"
+    },
+    {
+      "question_id": 37,
+      "canonical_answer": "1000",
+      "accepted_variants": [
+        "1000"
+      ],
+      "classification": "PRIVATE_ORGANIZER_ONLY"
+    },
+    {
+      "question_id": 38,
+      "canonical_answer": "10110",
+      "accepted_variants": [
+        "10110"
+      ],
+      "classification": "PRIVATE_ORGANIZER_ONLY"
+    },
+    {
+      "question_id": 39,
+      "canonical_answer": "14",
+      "accepted_variants": [
+        "14",
+        "fourteen"
+      ],
+      "classification": "PRIVATE_ORGANIZER_ONLY"
+    },
+    {
+      "question_id": 40,
+      "canonical_answer": "cpt",
+      "accepted_variants": [
+        "cpt",
+        "CPT",
+        "C-P-T"
+      ],
+      "classification": "PRIVATE_ORGANIZER_ONLY"
+    },
+    {
+      "question_id": 41,
+      "canonical_answer": "keyboard",
+      "accepted_variants": [
+        "keyboard",
+        "a keyboard"
+      ],
+      "classification": "PRIVATE_ORGANIZER_ONLY"
+    },
+    {
+      "question_id": 42,
+      "canonical_answer": "l",
+      "accepted_variants": [
+        "l",
+        "L"
+      ],
+      "classification": "PRIVATE_ORGANIZER_ONLY"
+    },
+    {
+      "question_id": 43,
+      "canonical_answer": "12",
+      "accepted_variants": [
+        "12",
+        "twelve"
+      ],
+      "classification": "PRIVATE_ORGANIZER_ONLY"
+    },
+    {
+      "question_id": 44,
+      "canonical_answer": "l",
+      "accepted_variants": [
+        "l",
+        "L"
+      ],
+      "classification": "PRIVATE_ORGANIZER_ONLY"
+    },
+    {
+      "question_id": 45,
+      "canonical_answer": "ltt",
+      "accepted_variants": [
+        "ltt",
+        "LTT",
+        "L-T-T"
+      ],
+      "classification": "PRIVATE_ORGANIZER_ONLY"
+    }
+  ],
+  "treasure_verification": {
+    "status": "NOT_CONFIGURED",
+    "physical_token": null,
+    "token_verifier": null,
+    "instruction": "Generate a high-entropy token after the treasure location and marshal procedure are finalized. Store only a verifier/hash in protected storage; never include the token in participant data."
+  }
+}

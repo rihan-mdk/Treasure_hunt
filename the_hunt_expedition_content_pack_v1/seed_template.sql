@@ -1,0 +1,6 @@
+-- SAFETY-FIRST TEMPLATE ONLY; NOT A DIRECT EXECUTABLE SEED.
+-- Review supabase/migrations/20261025000000_phase1_core.sql for exact schema.
+-- Never run against production. Do not run against staging without separate explicit authorization.
+-- Keep answer keys in the protected answer-key table, never participant-facing tables.
+-- Before import: map JSON fields to schema, validate counts, review all prompts/answers, and test in a disposable local DB.
+-- The physical treasure location/token/verifier are intentionally unset.

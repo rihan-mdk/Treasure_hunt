@@ -995,5 +995,145 @@ test("Increment 3 Offline: Trusted client IP resolution and injection prevention
   assert.equal(resolveMockIp({}), "127.0.0.1");
 });
 
+test("Phase 4 Event Timing: Exact 28 October 2026 IST Boundaries & UTC Derivation", () => {
+  // Asia/Kolkata is UTC+05:30.
+  // Start: 2026-10-28 10:00:00 IST -> 2026-10-28T04:30:00.000Z (UTC)
+  // End:   2026-10-28 13:00:00 IST -> 2026-10-28T07:30:00.000Z (UTC)
+  const eventStartUtc = new Date("2026-10-28T04:30:00.000Z");
+  const eventEndUtc   = new Date("2026-10-28T07:30:00.000Z");
+
+  // Duration must be exactly 3 hours (180 minutes)
+  const durationMs = eventEndUtc.getTime() - eventStartUtc.getTime();
+  assert.equal(durationMs, 3 * 60 * 60 * 1000, "Event duration must be exactly 3 hours");
+
+  function evaluateEventAccess(event, currentTime) {
+    if (event.is_locked) {
+      return { success: false, error: "ERR_EVENT_LOCKED_OR_COMPLETED" };
+    }
+    if (!event.status || event.status !== "active") {
+      return { success: false, error: "ERR_EVENT_NOT_ACTIVE" };
+    }
+    if (!event.start_at || !event.end_at || event.end_at <= event.start_at) {
+      return { success: false, error: "ERR_EVENT_CONFIG_INVALID" };
+    }
+    if (currentTime < event.start_at) {
+      return { success: false, error: "ERR_EVENT_NOT_STARTED" };
+    }
+    if (currentTime > event.end_at) {
+      return { success: false, error: "ERR_EVENT_EXPIRED" };
+    }
+    return { success: true };
+  }
+
+  const activeEvent = {
+    id: 1,
+    status: "active",
+    is_locked: false,
+    start_at: eventStartUtc,
+    end_at: eventEndUtc,
+  };
+
+  // 1. Before start boundary (1 millisecond before 10:00 AM IST)
+  const beforeStart = new Date("2026-10-28T04:29:59.999Z");
+  assert.equal(evaluateEventAccess(activeEvent, beforeStart).error, "ERR_EVENT_NOT_STARTED");
+
+  // 2. Exactly at start boundary (10:00:00.000 AM IST)
+  const exactStart = new Date("2026-10-28T04:30:00.000Z");
+  assert.equal(evaluateEventAccess(activeEvent, exactStart).success, true);
+
+  // 3. During event (11:30:00 AM IST)
+  const midEvent = new Date("2026-10-28T06:00:00.000Z");
+  assert.equal(evaluateEventAccess(activeEvent, midEvent).success, true);
+
+  // 4. Exactly at end boundary (1:00:00.000 PM IST)
+  const exactEnd = new Date("2026-10-28T07:30:00.000Z");
+  assert.equal(evaluateEventAccess(activeEvent, exactEnd).success, true);
+
+  // 5. After end boundary (1 millisecond after 1:00 PM IST)
+  const afterEnd = new Date("2026-10-28T07:30:00.001Z");
+  assert.equal(evaluateEventAccess(activeEvent, afterEnd).error, "ERR_EVENT_EXPIRED");
+
+  // 6. Draft status fails closed during active window
+  const draftEvent = { ...activeEvent, status: "draft" };
+  assert.equal(evaluateEventAccess(draftEvent, midEvent).error, "ERR_EVENT_NOT_ACTIVE");
+
+  // 7. Locked event fails closed during active window
+  const lockedEvent = { ...activeEvent, is_locked: true };
+  assert.equal(evaluateEventAccess(lockedEvent, midEvent).error, "ERR_EVENT_LOCKED_OR_COMPLETED");
+
+  // 8. Completed status fails closed
+  const completedEvent = { ...activeEvent, status: "completed" };
+  assert.equal(evaluateEventAccess(completedEvent, midEvent).error, "ERR_EVENT_NOT_ACTIVE");
+
+  // 9. Inverted timestamps fail closed
+  const invertedEvent = { ...activeEvent, start_at: eventEndUtc, end_at: eventStartUtc };
+  assert.equal(evaluateEventAccess(invertedEvent, midEvent).error, "ERR_EVENT_CONFIG_INVALID");
+});
+
+test("Phase 5 Seven-Team & Single Winner Invariants", () => {
+  // Validate team count requirement: exactly 7 teams
+  function validateTeamRoster(teams) {
+    if (!Array.isArray(teams)) throw new Error("Teams must be an array");
+    if (teams.length !== 7) throw new Error(`Expected exactly 7 teams, found ${teams.length}`);
+
+    const callsigns = new Set();
+    const names = new Set();
+    const callsignRegex = /^[A-Z0-9_-]{3,20}$/;
+
+    for (const t of teams) {
+      if (!t.team_name || t.team_name.trim().length === 0) {
+        throw new Error("Team name cannot be empty");
+      }
+      if (!t.callsign || !callsignRegex.test(t.callsign)) {
+        throw new Error(`Invalid callsign format for team: ${t.callsign}`);
+      }
+      const normName = t.team_name.trim().toLowerCase();
+      if (names.has(normName)) {
+        throw new Error(`Duplicate team name: ${t.team_name}`);
+      }
+      names.add(normName);
+
+      if (callsigns.has(t.callsign)) {
+        throw new Error(`Duplicate callsign: ${t.callsign}`);
+      }
+      callsigns.add(t.callsign);
+    }
+    return true;
+  }
+
+  // Valid 7-team roster
+  const validRoster = [
+    { team_name: "Apex Explorers", callsign: "APEX-EXPLORERS" },
+    { team_name: "Cipher Vanguard", callsign: "CIPHER-VANGUARD" },
+    { team_name: "Delta Rangers", callsign: "DELTA-RANGERS" },
+    { team_name: "Echo Scouts", callsign: "ECHO-SCOUTS" },
+    { team_name: "Shadow Phoenix", callsign: "SHADOW-PHOENIX" },
+    { team_name: "Titan Sentinels", callsign: "TITAN-SENTINELS" },
+    { team_name: "Vortex Nomads", callsign: "VORTEX-NOMADS" },
+  ];
+  assert.ok(validateTeamRoster(validRoster));
+
+  // Rejects invalid team count (e.g. 6 or 8)
+  assert.throws(() => validateTeamRoster(validRoster.slice(0, 6)), /Expected exactly 7 teams/);
+  assert.throws(() => validateTeamRoster([...validRoster, { team_name: "Team 8", callsign: "TEAM-8" }]), /Expected exactly 7 teams/);
+
+  // Rejects duplicate callsign or name
+  const dupCallsign = [...validRoster.slice(0, 6), { team_name: "Unique 7", callsign: "APEX-EXPLORERS" }];
+  assert.throws(() => validateTeamRoster(dupCallsign), /Duplicate callsign/);
+
+  // Single-winner rule: only 1 winner record permitted
+  const winnerVerifications = [];
+  function recordWinner(event_id, winning_team_id, verified_by_marshal_id) {
+    if (winnerVerifications.some((w) => w.event_id === event_id)) {
+      throw new Error("ERR_EVENT_ALREADY_WON: Unique constraint violation on single event winner");
+    }
+    winnerVerifications.push({ event_id, winning_team_id, verified_by_marshal_id, verified_at: new Date() });
+    return true;
+  }
+
+  assert.ok(recordWinner(1, "team-1-uuid", "marshal-1-uuid"));
+  assert.throws(() => recordWinner(1, "team-2-uuid", "marshal-1-uuid"), /ERR_EVENT_ALREADY_WON/);
+});
+
 
 

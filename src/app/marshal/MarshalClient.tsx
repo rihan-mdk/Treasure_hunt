@@ -42,6 +42,8 @@ export default function MarshalClient() {
         ERR_TEAM_INCOMPLETE_QUESTIONS: "Team has not completed all 45 required questions.",
         ERR_INVALID_PHYSICAL_TOKEN: "Physical cache token does not match authoritative verifier.",
         ERR_EVENT_ALREADY_WON: "Event already won! A verified winner has already been recorded.",
+        ERR_EVENT_NOT_ACTIVE: "Event is currently inactive or in draft mode.",
+        ERR_EVENT_NOT_STARTED: "The event has not started yet.",
         ERR_EVENT_EXPIRED: "Event window has closed.",
       };
       setResultMsg(errMap[res.error || ""] || "Verification rejected by security gate.");

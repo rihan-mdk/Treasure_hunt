@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, XCircle, MapPin, CheckCircle2, ArrowRight, Lightbulb } from "lucide-react";
+import { ArrowLeft, XCircle, MapPin, CheckCircle2, ArrowRight, Lightbulb, AlertCircle } from "lucide-react";
 import { Button } from "@/components/common/Button";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import HintBottomSheet from "@/components/mission/HintBottomSheet";
@@ -21,7 +21,9 @@ export default function MissionClient({ question, hintsRemainingInLevel }: Missi
   const router = useRouter();
   const q = question;
   const [answer, setAnswer] = useState("");
-  const [submitState, setSubmitState] = useState<"idle" | "loading" | "correct" | "wrong">("idle");
+  const [submitState, setSubmitState] = useState<
+    "idle" | "loading" | "correct" | "wrong" | "inactive"
+  >("idle");
   const [showHints, setShowHints] = useState(false);
   const [showAbortConfirm, setShowAbortConfirm] = useState(false);
 
@@ -50,7 +52,16 @@ export default function MissionClient({ question, hintsRemainingInLevel }: Missi
           setSubmitState("idle");
         }
       }, 1200);
+    } else if (res.error === "ERR_EVENT_NOT_ACTIVE") {
+      // Event is in draft / has ended — this is NOT a wrong answer
+      setSubmitState("inactive");
+      setTimeout(() => setSubmitState("idle"), 4000);
+    } else if (res.success === false) {
+      // Network / config / unexpected server error — neutral message
+      setSubmitState("inactive");
+      setTimeout(() => setSubmitState("idle"), 4000);
     } else {
+      // success === true, correct === false → genuine wrong answer
       setSubmitState("wrong");
       setTimeout(() => setSubmitState("idle"), 2400);
     }
@@ -202,6 +213,8 @@ export default function MissionClient({ question, hintsRemainingInLevel }: Missi
                   ? "border-[#10B981] shadow-[0_0_16px_rgba(16,185,129,0.25)]"
                   : submitState === "wrong"
                   ? "border-[#EF4444] shadow-[0_0_12px_rgba(239,68,68,0.2)]"
+                  : submitState === "inactive"
+                  ? "border-amber-500/50 shadow-[0_0_12px_rgba(245,158,11,0.15)]"
                   : "border-white/10 focus:border-[#00E5FF]/60 focus:bg-[#0e0915]"
               }`}
               style={{ fontFamily: "var(--font-jetbrains-mono)" }}
@@ -216,6 +229,18 @@ export default function MissionClient({ question, hintsRemainingInLevel }: Missi
                   style={{ fontFamily: "var(--font-jetbrains-mono)" }}
                 >
                   Correct — Waypoint Verified
+                </span>
+              </div>
+            )}
+
+            {submitState === "inactive" && (
+              <div className="flex items-center gap-2 p-3 rounded-xl bg-amber-500/15 border border-amber-500/30">
+                <AlertCircle size={16} className="text-amber-400" />
+                <span
+                  className="text-[12px] text-amber-300 font-semibold tracking-wider uppercase"
+                  style={{ fontFamily: "var(--font-jetbrains-mono)" }}
+                >
+                  Expedition not active — submissions unavailable
                 </span>
               </div>
             )}

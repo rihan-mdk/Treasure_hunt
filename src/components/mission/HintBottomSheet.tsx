@@ -1,11 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Lightbulb, X, CheckCircle2, Eye, Lock, ArrowRight } from "lucide-react";
+import { Lightbulb, X, CheckCircle2, Eye, Lock, ArrowRight, AlertCircle } from "lucide-react";
 import { Button } from "@/components/common/Button";
 
 interface Hint {
+  /** Display ordinal (1, 2, 3) — used for UI numbering and local state keying only. */
   id: number;
+  /** The database UUID of this hint row — must be passed unchanged to revealHintAction. */
+  hintId: string;
   title: string;
   description: string;
   isRevealed: boolean;
@@ -34,14 +37,21 @@ export default function HintBottomSheet({
   const [localHints, setLocalHints] = useState(hints);
   const [localRemaining, setLocalRemaining] = useState(hintsRemaining);
   const [loadingId, setLoadingId] = useState<number | null>(null);
+  const [hintError, setHintError] = useState<string | null>(null);
 
-  const revealHint = async (id: number) => {
+  /**
+   * Reveal a hint by passing its database UUID (hintId) to the server action.
+   * The numeric display id is kept for UI state only and must NOT be sent to the DB.
+   */
+  const revealHint = async (id: number, hintId: string) => {
     if (localRemaining <= 0) return;
     setLoadingId(id);
+    setHintError(null);
 
     try {
-      const res = await revealHintAction({ hintId: String(id) });
+      const res = await revealHintAction({ hintId });
       if (res.success) {
+        // Only update UI and decrement count on confirmed server success
         setLocalHints((prev) =>
           prev.map((h) =>
             h.id === id
@@ -54,7 +64,21 @@ export default function HintBottomSheet({
         } else {
           setLocalRemaining((v) => Math.max(0, v - 1));
         }
+      } else {
+        // Surface a clear error; do NOT decrement count or reveal content
+        const errorCode = res.error ?? "";
+        if (errorCode === "ERR_EVENT_NOT_ACTIVE") {
+          setHintError("The expedition is not active yet. Hints are unavailable until the event begins.");
+        } else if (errorCode === "ERR_HINT_QUOTA_EXCEEDED") {
+          setHintError("No hints remaining for this level.");
+        } else if (errorCode === "ERR_UNAUTHORIZED") {
+          setHintError("Your session has expired. Please log in again.");
+        } else {
+          setHintError("Unable to reveal this hint. Please try again.");
+        }
       }
+    } catch {
+      setHintError("A network error occurred. Please check your connection and retry.");
     } finally {
       setLoadingId(null);
     }
@@ -135,6 +159,26 @@ export default function HintBottomSheet({
             </p>
           </div>
 
+          {/* Hint error banner — shown when a reveal request fails */}
+          {hintError && (
+            <div className="mx-5 mt-3 flex items-start gap-2 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30">
+              <AlertCircle size={15} className="text-amber-400 mt-0.5 shrink-0" />
+              <p
+                className="text-[12px] text-amber-300 leading-snug"
+                style={{ fontFamily: "var(--font-jetbrains-mono)" }}
+              >
+                {hintError}
+              </p>
+              <button
+                onClick={() => setHintError(null)}
+                aria-label="Dismiss error"
+                className="ml-auto text-amber-400/60 hover:text-amber-300 transition-colors"
+              >
+                <X size={13} />
+              </button>
+            </div>
+          )}
+
           {/* Hints list */}
           <div className="px-5 py-4 flex flex-col gap-3 max-h-[42vh] overflow-y-auto">
             {localHints.map((hint) => (
@@ -179,7 +223,7 @@ export default function HintBottomSheet({
                     </p>
                   ) : (
                     <button
-                      onClick={() => revealHint(hint.id)}
+                      onClick={() => revealHint(hint.id, hint.hintId)}
                       disabled={localRemaining <= 0 || loadingId === hint.id}
                       className={`ml-8 w-[calc(100%-2rem)] h-11 min-h-[44px] rounded-lg text-[11px] uppercase tracking-wider font-semibold flex items-center justify-center gap-2 transition-all ${
                         loadingId === hint.id

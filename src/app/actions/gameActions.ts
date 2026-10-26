@@ -84,6 +84,7 @@ export async function submitAnswerAction(input: SubmitAnswerInput): Promise<Subm
 
     const payload = data as Record<string, unknown>;
     if (!payload || payload.success !== true) {
+      // Thread the DB error code through so callers can map it (e.g. ERR_EVENT_NOT_ACTIVE)
       return {
         success: false,
         error: (payload?.error as string) || "ERR_SUBMISSION_REJECTED",
@@ -133,6 +134,7 @@ export async function revealHintAction(input: RevealHintInput): Promise<RevealHi
 
     const payload = data as Record<string, unknown>;
     if (!payload || payload.success !== true) {
+      // Thread the DB error code through so callers can map it (e.g. ERR_EVENT_NOT_ACTIVE)
       return {
         success: false,
         error: (payload?.error as string) || "ERR_HINT_REVEAL_REJECTED",

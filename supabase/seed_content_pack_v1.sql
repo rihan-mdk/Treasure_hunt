@@ -666,7 +666,7 @@ BEGIN
 
   -- Question 41 (Level 5, Seq 1)
   INSERT INTO public.questions (level_number, order_seq, title, prompt, cipher_type, dependency_question_id)
-  VALUES (5, 1, 'Final Chain 1 — The Key', 'I have keys but no locks, space but no room, and you can enter but not go inside. What am I?', 'puzzle', NULL)
+  VALUES (5, 1, 'The Catalogue', 'Knowledge on campus has a shared home, but finding a single volume without a map is futile. Go where seekers turn keywords into call numbers before entering the quiet aisles.', 'puzzle', NULL)
   RETURNING id INTO v_l5_q1;
   v_q_id := v_l5_q1;
   INSERT INTO public.question_keys (question_id, answer_hash, is_canonical)
@@ -682,7 +682,7 @@ BEGIN
 
   -- Question 42 (Level 5, Seq 2)
   INSERT INTO public.questions (level_number, order_seq, title, prompt, cipher_type, dependency_question_id)
-  VALUES (5, 2, 'Final Chain 2 — The Input', 'Using your answer to Q41, on a standard QWERTY keyboard what letter is immediately to the right of K?', 'puzzle', v_l5_q1)
+  VALUES (5, 2, 'The Social Commons', 'When morning sessions break, energy is restored where conversation is loudest. Bypass the warm trays and seek the counter specializing in chilled extracts and fresh blends.', 'puzzle', v_l5_q1)
   RETURNING id INTO v_l5_q2;
   v_q_id := v_l5_q2;
   INSERT INTO public.question_keys (question_id, answer_hash, is_canonical)
@@ -696,7 +696,7 @@ BEGIN
 
   -- Question 43 (Level 5, Seq 3)
   INSERT INTO public.questions (level_number, order_seq, title, prompt, cipher_type, dependency_question_id)
-  VALUES (5, 3, 'Final Chain 3 — The Count', 'Take the letter from Q42. What is its position in the English alphabet?', 'puzzle', v_l5_q2)
+  VALUES (5, 3, 'Line of Sight', 'Leave the academic blocks for the campus athletic grounds. At the boundary aligned with the central pitch, find the tall white screen that shields the batter''s line of vision.', 'puzzle', v_l5_q2)
   RETURNING id INTO v_l5_q3;
   v_q_id := v_l5_q3;
   INSERT INTO public.question_keys (question_id, answer_hash, is_canonical)
@@ -712,7 +712,7 @@ BEGIN
 
   -- Question 44 (Level 5, Seq 4)
   INSERT INTO public.questions (level_number, order_seq, title, prompt, cipher_type, dependency_question_id)
-  VALUES (5, 4, 'Final Chain 4 — The Code', 'Convert the number from Q43 using A=1, B=2, ... Z=26. Which letter is it?', 'puzzle', v_l5_q3)
+  VALUES (5, 4, 'Point of Entry', 'Every commute converges at the college perimeter, where the daily flow of transport is checked and logged. Seek the booth that oversees everyone entering and exiting the campus grounds.', 'puzzle', v_l5_q3)
   RETURNING id INTO v_l5_q4;
   v_q_id := v_l5_q4;
   INSERT INTO public.question_keys (question_id, answer_hash, is_canonical)
@@ -726,7 +726,7 @@ BEGIN
 
   -- Question 45 (Level 5, Seq 5)
   INSERT INTO public.questions (level_number, order_seq, title, prompt, cipher_type, dependency_question_id)
-  VALUES (5, 5, 'Final Chain 5 — The Word', 'Write the letter from Q44, then the first letter of TREASURE, then the last letter of HUNT. What code do you get?', 'puzzle', v_l5_q4)
+  VALUES (5, 5, 'The Decisive Step', 'The trail now turns upon itself to close the loop. Ascend to the high tier where machines are trained to think and neural networks are designed, returning to the corridor just outside the chamber where your expedition first began. Report to the presiding marshal to transition from digital coordinates to the final physical trial.', 'puzzle', v_l5_q4)
   RETURNING id INTO v_l5_q5;
   v_q_id := v_l5_q5;
   INSERT INTO public.question_keys (question_id, answer_hash, is_canonical)

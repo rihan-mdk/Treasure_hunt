@@ -269,17 +269,28 @@ export default function MissionClient({ question, hintsRemainingInLevel }: Missi
             </Button>
           </form>
 
-          {/* Hint Trigger */}
+          {/* Hint Trigger / Disabled Banner */}
           <div className="mt-3">
-            <button
-              id="open-hints-btn"
-              onClick={() => setShowHints(true)}
-              className="w-full h-11 min-h-[44px] rounded-xl bg-[#3B0A6B]/25 border border-[#3B0A6B]/50 text-[#dab9ff] text-[12px] uppercase tracking-wider font-semibold flex items-center justify-center gap-2 hover:bg-[#3B0A6B]/40 transition-colors"
-              style={{ fontFamily: "var(--font-jetbrains-mono)" }}
-            >
-              <Lightbulb size={16} />
-              <span>Use Hint · {hintsRemainingInLevel} Available</span>
-            </button>
+            {q.levelNumber === 5 ? (
+              <div
+                id="hints-disabled-banner"
+                className="w-full h-11 min-h-[44px] rounded-xl bg-white/[0.03] border border-white/[0.08] text-[#71697A] text-[11px] uppercase tracking-wider font-semibold flex items-center justify-center gap-2"
+                style={{ fontFamily: "var(--font-jetbrains-mono)" }}
+              >
+                <Lightbulb size={16} className="text-[#71697A]" />
+                <span>Final Sector · Hints Unavailable</span>
+              </div>
+            ) : (
+              <button
+                id="open-hints-btn"
+                onClick={() => setShowHints(true)}
+                className="w-full h-11 min-h-[44px] rounded-xl bg-[#3B0A6B]/25 border border-[#3B0A6B]/50 text-[#dab9ff] text-[12px] uppercase tracking-wider font-semibold flex items-center justify-center gap-2 hover:bg-[#3B0A6B]/40 transition-colors"
+                style={{ fontFamily: "var(--font-jetbrains-mono)" }}
+              >
+                <Lightbulb size={16} />
+                <span>Use Hint · {hintsRemainingInLevel} Available</span>
+              </button>
+            )}
           </div>
         </div>
       </main>

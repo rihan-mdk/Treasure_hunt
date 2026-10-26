@@ -200,7 +200,7 @@ export default function DashboardClient({ progress }: { progress: TeamProgressRe
                   <div className="flex items-center gap-1.5">
                     <Lightbulb size={14} className="text-[#dab9ff]" />
                     <span style={{ fontFamily: "var(--font-jetbrains-mono)" }}>
-                      {hintsRemaining} Hints
+                      {level.levelNumber === 5 ? "No Hints" : `${hintsRemaining} Hints`}
                     </span>
                   </div>
                 </div>

@@ -42,6 +42,9 @@ the-hunt-backups/
 staging-qa-identities.json
 *.key
 
+# Production-only one-shot execution scripts (contain project refs and local paths)
+scripts/execute-production-*.mjs
+
 # vercel
 .vercel
 

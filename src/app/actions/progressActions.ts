@@ -175,7 +175,7 @@ export async function getTeamProgressAction(): Promise<TeamProgressResponse> {
         name: l.name,
         codename: l.codename,
         requiredQuestions: l.required_questions,
-        hintsAllocated: l.hints_allocated,
+        hintsAllocated: l.level_number === 5 ? 0 : l.hints_allocated,
         solvedQuestions: solved,
         hintsUsed,
         status,
@@ -324,19 +324,22 @@ export async function getCurrentQuestionAction(): Promise<CurrentQuestionRespons
       .eq("level_number", activeLevel);
 
     const hintsUsedInLevel = levelHintsData?.length ?? 0;
-    const hintsRemainingInLevel = Math.max(0, 3 - hintsUsedInLevel);
+    // Level 5 (Sector Omega) has 0 hints available
+    const hintsRemainingInLevel = activeLevel === 5 ? 0 : Math.max(0, 3 - hintsUsedInLevel);
 
-    const questionHints: QuestionHint[] = (hintsData ?? []).map((h) => {
-      const hint = h as { id: string; hint_number: number; content: string };
-      const isRevealed = revealedSet.has(hint.id);
-      return {
-        id: hint.id,
-        hintNumber: hint.hint_number,
-        title: `Hint ${hint.hint_number}`,
-        content: isRevealed ? hint.content : null,
-        isRevealed,
-      };
-    });
+    const questionHints: QuestionHint[] = activeLevel === 5
+      ? []
+      : (hintsData ?? []).map((h) => {
+          const hint = h as { id: string; hint_number: number; content: string };
+          const isRevealed = revealedSet.has(hint.id);
+          return {
+            id: hint.id,
+            hintNumber: hint.hint_number,
+            title: `Hint ${hint.hint_number}`,
+            content: isRevealed ? hint.content : null,
+            isRevealed,
+          };
+        });
 
     const totalInLevel = questionsData.length;
 

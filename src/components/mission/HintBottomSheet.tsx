@@ -69,6 +69,8 @@ export default function HintBottomSheet({
         const errorCode = res.error ?? "";
         if (errorCode === "ERR_EVENT_NOT_ACTIVE") {
           setHintError("The expedition is not active yet. Hints are unavailable until the event begins.");
+        } else if (errorCode === "ERR_LEVEL_HINTS_DISABLED") {
+          setHintError("Hints are unavailable in Sector Omega (Level 5).");
         } else if (errorCode === "ERR_HINT_QUOTA_EXCEEDED") {
           setHintError("No hints remaining for this level.");
         } else if (errorCode === "ERR_UNAUTHORIZED") {

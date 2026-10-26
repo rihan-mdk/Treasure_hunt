@@ -123,6 +123,22 @@ export async function revealHintAction(input: RevealHintInput): Promise<RevealHi
 
   try {
     const admin = createAdminSupabaseClient();
+
+    // Server-side enforcement: Pre-verify hint metadata and fail closed
+    const { data: hintMeta, error: hintMetaErr } = await admin
+      .from("hints")
+      .select("level_number")
+      .eq("id", hintId)
+      .single();
+
+    if (hintMetaErr || !hintMeta) {
+      return { success: false, error: "ERR_HINT_NOT_FOUND" };
+    }
+
+    if ((hintMeta as { level_number: number }).level_number === 5) {
+      return { success: false, error: "ERR_LEVEL_HINTS_DISABLED" };
+    }
+
     const { data, error } = await admin.rpc("request_reveal_hint", {
       p_session_token: token,
       p_hint_id: hintId,

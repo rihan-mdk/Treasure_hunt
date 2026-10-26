@@ -1491,8 +1491,8 @@
       "question_id": 41,
       "level_id": 5,
       "sequence_in_level": 1,
-      "title": "Final Chain 1 — The Key",
-      "participant_prompt": "I have keys but no locks, space but no room, and you can enter but not go inside. What am I?",
+      "title": "The Catalogue",
+      "participant_prompt": "Knowledge on campus has a shared home, but finding a single volume without a map is futile. Go where seekers turn keywords into call numbers before entering the quiet aisles.",
       "question_type": "puzzle",
       "requires_question_ids": [
         1,
@@ -1560,8 +1560,8 @@
       "question_id": 42,
       "level_id": 5,
       "sequence_in_level": 2,
-      "title": "Final Chain 2 — The Input",
-      "participant_prompt": "Using your answer to Q41, on a standard QWERTY keyboard what letter is immediately to the right of K?",
+      "title": "The Social Commons",
+      "participant_prompt": "When morning sessions break, energy is restored where conversation is loudest. Bypass the warm trays and seek the counter specializing in chilled extracts and fresh blends.",
       "question_type": "puzzle",
       "requires_question_ids": [
         41
@@ -1590,8 +1590,8 @@
       "question_id": 43,
       "level_id": 5,
       "sequence_in_level": 3,
-      "title": "Final Chain 3 — The Count",
-      "participant_prompt": "Take the letter from Q42. What is its position in the English alphabet?",
+      "title": "Line of Sight",
+      "participant_prompt": "Leave the academic blocks for the campus athletic grounds. At the boundary aligned with the central pitch, find the tall white screen that shields the batter's line of vision.",
       "question_type": "puzzle",
       "requires_question_ids": [
         42
@@ -1620,8 +1620,8 @@
       "question_id": 44,
       "level_id": 5,
       "sequence_in_level": 4,
-      "title": "Final Chain 4 — The Code",
-      "participant_prompt": "Convert the number from Q43 using A=1, B=2, ... Z=26. Which letter is it?",
+      "title": "Point of Entry",
+      "participant_prompt": "Every commute converges at the college perimeter, where the daily flow of transport is checked and logged. Seek the booth that oversees everyone entering and exiting the campus grounds.",
       "question_type": "puzzle",
       "requires_question_ids": [
         43
@@ -1650,8 +1650,8 @@
       "question_id": 45,
       "level_id": 5,
       "sequence_in_level": 5,
-      "title": "Final Chain 5 — The Word",
-      "participant_prompt": "Write the letter from Q44, then the first letter of TREASURE, then the last letter of HUNT. What code do you get?",
+      "title": "The Decisive Step",
+      "participant_prompt": "The trail now turns upon itself to close the loop. Ascend to the high tier where machines are trained to think and neural networks are designed, returning to the corridor just outside the chamber where your expedition first began. Report to the presiding marshal to transition from digital coordinates to the final physical trial.",
       "question_type": "puzzle",
       "requires_question_ids": [
         44

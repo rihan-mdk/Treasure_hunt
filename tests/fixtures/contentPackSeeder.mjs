@@ -62,20 +62,38 @@ export async function seedContentPack(db, options = { bcryptRounds: 8 }) {
     const qUuid = qRes.rows[0].id;
     questionIdMap.set(qNum, qUuid);
 
-    // Seed answer key for this question
+    // Seed canonical answer key
     const keyData = privateKey.private_answer_keys.find(x => x.question_id === qNum);
     assert.ok(keyData, `Key for question ${qNum} must exist in private_answer_key`);
-    const normAns = keyData.canonical_answer.trim().toLowerCase().replace(/\s+/g, " ");
+    const normCanonical = keyData.canonical_answer.trim().toLowerCase().replace(/\s+/g, " ");
 
     await db.query(
       `
-      INSERT INTO public.question_keys (question_id, answer_hash)
-      VALUES ($1, extensions.crypt($2, extensions.gen_salt('bf', $3)))
-      ON CONFLICT (question_id) DO UPDATE SET
-        answer_hash = EXCLUDED.answer_hash;
+      INSERT INTO public.question_keys (question_id, answer_hash, is_canonical)
+      VALUES ($1, extensions.crypt($2, extensions.gen_salt('bf', $3)), true)
+      ON CONFLICT (question_id, answer_hash) DO UPDATE SET
+        is_canonical = EXCLUDED.is_canonical;
       `,
-      [qUuid, normAns, bcryptCost]
+      [qUuid, normCanonical, bcryptCost]
     );
+
+    // Seed secondary variants if any
+    const seenVariants = new Set([normCanonical]);
+    const variants = keyData.accepted_variants || [];
+    for (const v of variants) {
+      const normV = v.trim().toLowerCase().replace(/\s+/g, " ");
+      if (!seenVariants.has(normV)) {
+        seenVariants.add(normV);
+        await db.query(
+          `
+          INSERT INTO public.question_keys (question_id, answer_hash, is_canonical)
+          VALUES ($1, extensions.crypt($2, extensions.gen_salt('bf', $3)), false)
+          ON CONFLICT (question_id, answer_hash) DO NOTHING;
+          `,
+          [qUuid, normV, bcryptCost]
+        );
+      }
+    }
 
     // Seed 3 hints
     for (const h of qData.hints) {
@@ -118,19 +136,37 @@ export async function seedContentPack(db, options = { bcryptRounds: 8 }) {
     questionIdMap.set(qNum, qUuid);
     prevQId = qUuid;
 
-    // Seed answer key
+    // Seed canonical answer key
     const keyData = privateKey.private_answer_keys.find(x => x.question_id === qNum);
-    const normAns = keyData.canonical_answer.trim().toLowerCase().replace(/\s+/g, " ");
+    const normCanonical = keyData.canonical_answer.trim().toLowerCase().replace(/\s+/g, " ");
 
     await db.query(
       `
-      INSERT INTO public.question_keys (question_id, answer_hash)
-      VALUES ($1, extensions.crypt($2, extensions.gen_salt('bf', $3)))
-      ON CONFLICT (question_id) DO UPDATE SET
-        answer_hash = EXCLUDED.answer_hash;
+      INSERT INTO public.question_keys (question_id, answer_hash, is_canonical)
+      VALUES ($1, extensions.crypt($2, extensions.gen_salt('bf', $3)), true)
+      ON CONFLICT (question_id, answer_hash) DO UPDATE SET
+        is_canonical = EXCLUDED.is_canonical;
       `,
-      [qUuid, normAns, bcryptCost]
+      [qUuid, normCanonical, bcryptCost]
     );
+
+    // Seed secondary variants
+    const seenVariants = new Set([normCanonical]);
+    const variants = keyData.accepted_variants || [];
+    for (const v of variants) {
+      const normV = v.trim().toLowerCase().replace(/\s+/g, " ");
+      if (!seenVariants.has(normV)) {
+        seenVariants.add(normV);
+        await db.query(
+          `
+          INSERT INTO public.question_keys (question_id, answer_hash, is_canonical)
+          VALUES ($1, extensions.crypt($2, extensions.gen_salt('bf', $3)), false)
+          ON CONFLICT (question_id, answer_hash) DO NOTHING;
+          `,
+          [qUuid, normV, bcryptCost]
+        );
+      }
+    }
 
     // Seed 3 hints
     for (const h of qData.hints) {
@@ -164,14 +200,14 @@ export async function seedContentPack(db, options = { bcryptRounds: 8 }) {
 
   assert.equal(Number(levelsCount.rows[0].c), 5, "Expected 5 levels");
   assert.equal(Number(questionsCount.rows[0].c), 45, "Expected 45 questions");
-  assert.equal(Number(keysCount.rows[0].c), 45, "Expected 45 keys");
+  assert.ok(Number(keysCount.rows[0].c) >= 45, `Expected at least 45 question_keys rows (multi-hash), got ${keysCount.rows[0].c}`);
   assert.equal(Number(hintsCount.rows[0].c), 135, "Expected 135 hints");
   assert.equal(eventStatus.rows[0].status, "draft", "Event must remain in draft status");
 
   return {
     levels: 5,
     questions: 45,
-    keys: 45,
+    keys: Number(keysCount.rows[0].c),
     hints: 135,
     eventStatus: "draft",
     questionIdMap,

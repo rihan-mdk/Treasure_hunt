@@ -1,3 +1,14 @@
+/**
+ * content-pack-integration.test.mjs
+ *
+ * Integration tests for the content pack seed and gameplay flow.
+ * Applies the full migration chain:
+ *   phase1_core -> seven_team_tokens -> multi_hash_question_keys
+ * Leaves the event in 'draft' status unless explicitly activated.
+ *
+ * OFFLINE ONLY. No remote connections.
+ */
+
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -5,18 +16,60 @@ import path from "node:path";
 import { createDisposableDatabase } from "./migration-runner.mjs";
 import { loadContentPack } from "./fixtures/contentPackSeeder.mjs";
 
-test("Content Pack: Seed SQL executes cleanly and matches schema constraints", async () => {
+const MIGRATION_PATHS = [
+  "supabase/migrations/20261025000000_phase1_core.sql",
+  "supabase/migrations/20261026000000_seven_team_tokens.sql",
+  "supabase/migrations/20261026010000_multi_hash_question_keys.sql",
+];
+
+const SEED_SQL_PATH = "supabase/seed_content_pack_v1.sql";
+
+// 7 synthetic teams required by internal_verify_expedition_dataset()
+const SYNTH_TEAMS = [
+  { name: "Alpha",   callsign: "CI-ALPHA-01",   pw: "PwCiAlpha1!",   token: "CI-TOKEN-ALPHA-2026" },
+  { name: "Bravo",   callsign: "CI-BRAVO-02",   pw: "PwCiBravo2!",   token: "CI-TOKEN-BRAVO-2026" },
+  { name: "Charlie", callsign: "CI-CHARLIE-03", pw: "PwCiCharlie3!", token: "CI-TOKEN-CHARLIE-2026" },
+  { name: "Delta",   callsign: "CI-DELTA-04",   pw: "PwCiDelta4!",   token: "CI-TOKEN-DELTA-2026" },
+  { name: "Echo",    callsign: "CI-ECHO-05",    pw: "PwCiEcho5!",    token: "CI-TOKEN-ECHO-2026" },
+  { name: "Foxtrot", callsign: "CI-FOXTROT-06", pw: "PwCiFoxtrot6!", token: "CI-TOKEN-FOXTROT-2026" },
+  { name: "Golf",    callsign: "CI-GOLF-07",    pw: "PwCiGolf7!",    token: "CI-TOKEN-GOLF-2026" },
+];
+
+async function buildDb() {
   const db = await createDisposableDatabase();
-  const migrationSql = fs.readFileSync(path.resolve("supabase/migrations/20261025000000_phase1_core.sql"), "utf-8");
-  const seedSql = fs.readFileSync(path.resolve("supabase/seed_content_pack_v1.sql"), "utf-8");
+  for (const mp of MIGRATION_PATHS) {
+    await db.exec(fs.readFileSync(path.resolve(mp), "utf-8"));
+  }
+  await db.exec(fs.readFileSync(path.resolve(SEED_SQL_PATH), "utf-8"));
+  return db;
+}
 
-  // Apply migration
-  await db.exec(migrationSql);
+async function seed7Teams(db) {
+  for (const t of SYNTH_TEAMS) {
+    const res = await db.query(
+      `INSERT INTO public.teams (team_name, callsign, password_hash)
+       VALUES ($1, $2, extensions.crypt($3, extensions.gen_salt('bf', 8)))
+       ON CONFLICT (callsign) DO UPDATE SET team_name = EXCLUDED.team_name
+       RETURNING id;`,
+      [t.name, t.callsign, t.pw]
+    );
+    const teamId = res.rows[0].id;
+    await db.query(
+      `INSERT INTO public.treasure_secrets (team_id, token_verifier, is_claimed)
+       VALUES ($1, extensions.crypt($2, extensions.gen_salt('bf', 8)), false)
+       ON CONFLICT (team_id) DO UPDATE SET token_verifier = EXCLUDED.token_verifier;`,
+      [teamId, t.token]
+    );
+  }
+}
 
-  // Apply content pack seed
-  await db.exec(seedSql);
+// ---------------------------------------------------------------------------
+// Test 1: Seed SQL executes cleanly
+// ---------------------------------------------------------------------------
 
-  // 1. Verify counts
+test("Content Pack: Seed SQL executes cleanly and matches schema constraints", async () => {
+  const db = await buildDb();
+
   const levelsCount = (await db.query("SELECT COUNT(*) as c FROM public.levels;")).rows[0].c;
   const questionsCount = (await db.query("SELECT COUNT(*) as c FROM public.questions;")).rows[0].c;
   const keysCount = (await db.query("SELECT COUNT(*) as c FROM public.question_keys;")).rows[0].c;
@@ -25,18 +78,17 @@ test("Content Pack: Seed SQL executes cleanly and matches schema constraints", a
 
   assert.equal(Number(levelsCount), 5, "Must have exactly 5 levels");
   assert.equal(Number(questionsCount), 45, "Must have exactly 45 questions");
-  assert.equal(Number(keysCount), 45, "Must have exactly 45 question keys");
+  assert.ok(Number(keysCount) >= 45, `Must have at least 45 question_keys rows (multi-hash), got ${keysCount}`);
   assert.equal(Number(hintsCount), 135, "Must have exactly 135 hints");
   assert.equal(eventStatus, "draft", "Event must remain in draft status");
 });
 
-test("Content Pack: Level 5 Questions 41-45 retain exact prompts and sequential dependencies", async () => {
-  const db = await createDisposableDatabase();
-  const migrationSql = fs.readFileSync(path.resolve("supabase/migrations/20261025000000_phase1_core.sql"), "utf-8");
-  const seedSql = fs.readFileSync(path.resolve("supabase/seed_content_pack_v1.sql"), "utf-8");
+// ---------------------------------------------------------------------------
+// Test 2: Level 5 dependency chain
+// ---------------------------------------------------------------------------
 
-  await db.exec(migrationSql);
-  await db.exec(seedSql);
+test("Content Pack: Level 5 Questions 41-45 retain exact prompts and sequential dependencies", async () => {
+  const db = await buildDb();
 
   const { master } = loadContentPack();
 
@@ -65,41 +117,34 @@ test("Content Pack: Level 5 Questions 41-45 retain exact prompts and sequential 
   }
 });
 
+// ---------------------------------------------------------------------------
+// Test 3: Gameplay flow with content pack and canonical answers
+// ---------------------------------------------------------------------------
+
 test("Content Pack: Gameplay flow with content pack questions and canonical answers", async () => {
-  const db = await createDisposableDatabase();
-  const migrationSql = fs.readFileSync(path.resolve("supabase/migrations/20261025000000_phase1_core.sql"), "utf-8");
-  const seedSql = fs.readFileSync(path.resolve("supabase/seed_content_pack_v1.sql"), "utf-8");
-
-  await db.exec(migrationSql);
-  await db.exec(seedSql);
-
+  const db = await buildDb();
   const { privateKey } = loadContentPack();
 
-  // Create a test team
-  await db.query(`
-    INSERT INTO public.teams (team_name, callsign, password_hash)
-    VALUES ('Audit Team', 'AUDIT-01', extensions.crypt('TestPassword123!', extensions.gen_salt('bf', 8)));
-  `);
+  // Seed 7 teams with treasure secrets
+  await seed7Teams(db);
 
-  // Verify fail-closed activation gate: event CANNOT be activated without a treasure secret verifier
+  // Verify fail-closed activation gate: event CANNOT be activated without treasure secrets (already seeded above)
+  // First test with 0 teams, separate DB
+  const dbFail = await createDisposableDatabase();
+  for (const mp of MIGRATION_PATHS) {
+    await dbFail.exec(fs.readFileSync(path.resolve(mp), "utf-8"));
+  }
+  await dbFail.exec(fs.readFileSync(path.resolve(SEED_SQL_PATH), "utf-8"));
+
   await assert.rejects(
     async () => {
-      await db.exec(`UPDATE public.event_config SET status = 'active' WHERE id = 1;`);
+      await dbFail.exec(`UPDATE public.event_config SET status = 'active' WHERE id = 1;`);
     },
-    /DATASET_INTEGRITY_FAIL: Active treasure secret verifier missing or invalid/,
-    "Activation must fail-closed if treasure secret verifier is missing"
+    /DATASET_INTEGRITY_FAIL/,
+    "Activation must fail-closed if treasure secret verifiers are missing"
   );
 
-  // For testing gameplay flow, provision temporary test treasure secret verifier
-  await db.query(`
-    INSERT INTO public.treasure_secrets (id, token_verifier, is_claimed)
-    VALUES (1, extensions.crypt('TEMP-LOCAL-TEST-TREASURE-TOKEN-2026', extensions.gen_salt('bf', 8)), false)
-    ON CONFLICT (id) DO UPDATE SET
-      token_verifier = EXCLUDED.token_verifier,
-      is_claimed = false;
-  `);
-
-  // Now activation succeeds through internal_verify_expedition_dataset
+  // Activate event on our main DB (7 teams + secrets already seeded)
   await db.exec(`
     UPDATE public.event_config
     SET status = 'active',
@@ -108,10 +153,10 @@ test("Content Pack: Gameplay flow with content pack questions and canonical answ
     WHERE id = 1;
   `);
 
-  // Authenticate team
+  // Authenticate team (use first synth team)
   const loginRes = (await db.query(
     "SELECT public.authenticate_team($1, $2, $3) as res;",
-    ["AUDIT-01", "TestPassword123!", "198.51.100.99"]
+    [SYNTH_TEAMS[0].callsign, SYNTH_TEAMS[0].pw, "198.51.100.99"]
   )).rows[0].res;
   assert.equal(loginRes.success, true);
   const token = loginRes.session_token;
@@ -142,7 +187,7 @@ test("Content Pack: Gameplay flow with content pack questions and canonical answ
   assert.equal(hint1.success, true);
   assert.equal(hint1.hints_remaining, 2);
 
-  // Submit correct canonical answer for Question 1 ("book")
+  // Submit correct canonical answer for Question 1
   const k1 = privateKey.private_answer_keys.find(x => x.question_id === 1);
   const correctRes = (await db.query(
     "SELECT public.submit_team_answer($1, $2, $3) as res;",
